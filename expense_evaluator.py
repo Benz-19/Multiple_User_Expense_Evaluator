@@ -16,6 +16,7 @@ def validate_input(message):
                 break
             except ValueError:
                 print("Ensure the input value a whole number")
+    return value
 
 def user_exists(name, password):
     """Determines if a user exists"""
@@ -28,21 +29,29 @@ def user_exists(name, password):
         currentIndex  = currentIndex + 1
 
 
-def insert_user():
+def create_user():
     """Inserts a new user"""
     try:
         with open("users.txt", "a") as file:
-            newUserName  = input("Enter your name>> ")
-            newUserPassword  = input("Enter your password>> ")
+            newUserName = newUserPassword = None
+            check = True
+            while check:
+                newUserName  = input("Enter your name>> ")
+                newUserPassword  = input("Enter your password>> ")
 
-            exists = user_exists(newUserName, newUserPassword) #checks if the user exists
-            if not exists:
-                userDetails = "\n" + newUserName + " " + newUserPassword
-                file.write(userDetails)
-                print("New user Created successfully...")
-            else:
-                print("User Already Exists, Quiting...")
-                exit()
+                exists = user_exists(newUserName, newUserPassword) #checks if the user exists
+                if not exists:
+                    userDetails = newUserName + " " + newUserPassword
+                    file.write(userDetails)
+                    if not newUserName and not newUserPassword:
+                        print("\nError...ENTER a NAME and a PASSWORD. Try again!")
+                        create_user()
+                    else:
+                        print("New user Created Successfully...")
+                        check = False
+                else:
+                    print("User Already Exists, Quiting...")
+                    exit()
     except Exception as e:
         print(f"Something went wrong in inserting the user data... {e}")
 
@@ -57,9 +66,17 @@ def login_user(name, password):
         except Exception as e:
             print(f"Unable to process login now... {e}\nQuiting...")
     else:
-        response = "The user does not exists. Would you like to create an account? [1] for yes, [0] for no: "
-        validate_input(response)
+        message = "The user does not exists. Would you like to create an account? [1] for yes, [0] for no: "
+        response = validate_input(message)
+        if response in [0,1]: # ensure the value is either 0 or 1
+            if response == 1:
+                create_user()
+            else:
+                print("Ending Session...\nOpen app to try again...")
+                exit()
+
+
 
         
-insert_user()            
+login_user("charles", 0000)         
 usersFile.close()
