@@ -1,5 +1,14 @@
 from collections import defaultdict
 
+categories = {
+    "food" : defaultdict(list),
+    "transport" : defaultdict(list),
+    "books" : defaultdict(list),
+    "bills" : defaultdict(list),
+    "entertainment" : defaultdict(list),
+    "unavailable" : defaultdict(list)
+}
+
 usersFile = open("users.txt", "r")
 
 usersList = (usersFile.read()).split()
@@ -19,14 +28,20 @@ def validate_input(message):
     return value
 
 def user_exists(name, password):
-    """Determines if a user exists"""
+    """Determines if a user exists and stores all passwords for a given username."""
     sameNameDict = defaultdict(list)
     currentIndex = 0
-    for userDetail in usersList:
-        if userDetail == name and usersList[currentIndex + 1] == password:
-            sameNameDict[name] = usersList[currentIndex + 1] #gets and store all the users with the same username
-            return True
-        currentIndex  = currentIndex + 1
+    while currentIndex < len(usersList) - 1: #Prevent index error
+        if usersList[currentIndex] == name and usersList[currentIndex + 1] == str(password):
+            # print("user = ", usersList[currentIndex], "password = ", usersList[currentIndex + 1])
+            sameNameDict[name].append(usersList[currentIndex + 1])  # Store passwords as a list
+            return sameNameDict
+        currentIndex += 1
+    return False
+
+# saves the user details over time
+def user_session(details):
+    return details
 
 
 def create_user():
@@ -55,16 +70,33 @@ def create_user():
     except Exception as e:
         print(f"Something went wrong in inserting the user data... {e}")
 
-def available_options():
-    pass
+#displays the available category to the user
+def display_category():
+    print("\nThese are the available category for you to choose from. Use the index numbers 0,1,... to select an option.")
+    index = 0
+    for option in categories:
+        if index == 5:
+            break
+        print("[", str(index), "] = ", option)
+        index = index + 1
+
+# user dashboard
+def user_dashboard(userDetails):
+    print(f"\n--------- Welcome {userDetails["name"]} -------------")
+    display_category()
+
+    
 
 def login_user(name, password):
     exists = user_exists(name, password)
     if exists:
         try:
-            available_options()
+            userDetails = {}
+            userDetails["name"] = name
+            userDetails["password"] = password
+            user_dashboard(userDetails)
         except Exception as e:
-            print(f"Unable to process login now... {e}\nQuiting...")
+            print(f"Unable to process login now... \tErrorDetail: {e}\nQuiting...")
     else:
         message = "The user does not exists. Would you like to create an account? [1] for yes, [0] for no: "
         response = validate_input(message)
@@ -76,7 +108,8 @@ def login_user(name, password):
                 exit()
 
 
-
-        
-login_user("charles", 0000)         
+# process
+name = input("name>> ")
+password = input("password>> ")
+login_user(name, password)         
 usersFile.close()
