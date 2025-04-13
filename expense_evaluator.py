@@ -143,6 +143,7 @@ def login_user(name, password):
             userDetails = {}
             userDetails["name"] = name
             userDetails["password"] = password
+            global userDet 
             userDet = userDetails
             user_session(userDetails)
             user_dashboard(userDet)
@@ -168,6 +169,7 @@ def logout_user(sessionDetails):
 # user dashboard
 def user_dashboard(userDetails):
     print(f"\n--------- Welcome {userDetails["name"]} -------------")
+
     display_category() #display the available options
     get_expense()
 
@@ -176,5 +178,5 @@ def user_dashboard(userDetails):
 # process
 name = input("name>> ")
 password = input("password>> ")
-login_user(name, password)   
+login_user(name, password) 
 usersFile.close()
