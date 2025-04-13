@@ -40,7 +40,7 @@ def display_category():
     print("[6] = Logout")
 
 #obtains the daily expenses (if selected)
-def get_expense():
+def set_user_expense():
     selectedCategory = validate_input("Category = ")
     if selectedCategory == 5:
         display_user_expense_history()
@@ -73,7 +73,7 @@ def get_expense():
     continueProcess = validate_input("Would you like to continue the process? [0] for no, [1] for yes: ")
     if continueProcess == 1:
         display_category()
-        get_expense()
+        set_user_expense()
     else:
         user_dashboard(userDet)
 
@@ -89,6 +89,24 @@ def process_sum_message(name):
             else:
                 print(f"No values were found for {name.capitalize()}...")
     
+def update_user_expense_db():
+    user = user_session(userDet)
+    userId = user["id"]
+    userExpense = user["Total_Cost"]
+    try:
+        with open("users_expenses.txt", "a") as file:
+            userDetails = userId + " " + userExpense
+            file.write(userDetails)
+            if file:
+                print("--------- Successfully Updated your details ----------")
+    except FileNotFoundError:
+        print(f"Failed to locate {file}. Ensure it exists...")
+        return 1
+
+
+def get_user_expense():
+    pass
+
 def display_user_expense_history():
     pass
 
@@ -210,7 +228,7 @@ def user_dashboard(userDetails):
     print(f"\n--------- Welcome {userDetails["name"]}, ID = {userDetails["userId"]} -------------")
 
     display_category() #display the available options
-    get_expense()
+    set_user_expense()
 
 
 
