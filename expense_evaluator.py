@@ -36,13 +36,17 @@ def display_category():
             break
         print("[", str(index), "] = ", option)
         index = index + 1
-    print("[5] = Logout")
+    print("[5] = Display History")
+    print("[6] = Logout")
 
 #obtains the daily expenses (if selected)
 def get_expense():
     selectedCategory = validate_input("Category = ")
     if selectedCategory == 5:
+        display_user_expense_history()
+    elif selectedCategory == 6:
         logout_user(userDet)
+
     endRequest = validate_input("Enter [1] to proceed: ")
     if endRequest not in [0,1]:
         print("Invalid input value, only [0] and [1] are allowed...")
@@ -73,6 +77,7 @@ def get_expense():
     else:
         user_dashboard(userDet)
 
+# Processes the sum total
 def process_sum_message(name):
     user = user_session(userDet)
     for items, value in categories.items():
@@ -84,7 +89,8 @@ def process_sum_message(name):
             else:
                 print(f"No values were found for {name.capitalize()}...")
     
-
+def display_user_expense_history():
+    pass
 
 def display_user_expense():
     #for food
