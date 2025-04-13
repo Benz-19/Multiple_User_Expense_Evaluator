@@ -64,11 +64,14 @@ def get_expense():
                 print("This category doesn't exists!!!")
         
         endRequest = validate_input("Enter [0] to terminate and [1] to proceed: ")
+    user = user_session(userDet)
+    user["Category"] = categories #stores the category data in the user session
     continueProcess = validate_input("Would you like to continue the process? [0] for no, [1] for yes: ")
     if continueProcess == 1:
-        user = user_session(userDet)
-        user["Category"] = categories
+        display_category()
         get_expense()
+    else:
+        user_dashboard(userDet)
 
 def process_sum_message(name):
     user = user_session(userDet)
