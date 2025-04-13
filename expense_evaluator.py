@@ -106,6 +106,25 @@ def display_user_expense():
   
 
 # USER VALIDATION
+
+# saves the user details over time
+def user_session(details):
+    return details
+
+def generate_user_id():
+    """Generating a unique user id"""    
+    try:
+        with open("users.txt", "r") as file:
+          userId = len(file.readlines()) + 1 #generates a new id
+          return userId
+    except FileNotFoundError:
+        print(f"The file {file} does not exists!!!")
+        return 1
+    except Exception as e:
+        print(f"Error: Something went wrong. ErrorType: {e}")
+        return None
+
+
 def user_exists(name, password):
     """Determines if a user exists and stores all passwords for a given username."""
     sameNameDict = defaultdict(list)
@@ -117,10 +136,6 @@ def user_exists(name, password):
             return sameNameDict
         currentIndex += 1
     return False
-
-# saves the user details over time
-def user_session(details):
-    return details
 
 
 def create_user():
@@ -135,7 +150,8 @@ def create_user():
 
                 exists = user_exists(newUserName, newUserPassword) #checks if the user exists
                 if not exists:
-                    userDetails = newUserName + " " + newUserPassword
+                    userId = generate_user_id()
+                    userDetails = "\n" + newUserName + " " + newUserPassword + "\t" + str(userId)
                     file.write(userDetails)
                     if not newUserName and not newUserPassword:
                         print("\nError...ENTER a NAME and a PASSWORD. Try again!")
@@ -146,6 +162,13 @@ def create_user():
                 else:
                     print("User Already Exists, Quiting...")
                     exit()
+            
+            # Login user
+            response = input("Press [0] to quit and login again: ")
+            response = validate_input(response)
+            if response:
+                print("\t\t--------- Goodbye ----------")
+                exit()
     except Exception as e:
         print(f"Something went wrong in inserting the user data... {e}")
 
@@ -157,6 +180,7 @@ def login_user(name, password):
             userDetails = {}
             userDetails["name"] = name
             userDetails["password"] = password
+            userDetails["userId"] = generate_user_id()
             global userDet 
             userDet = userDetails
             user_session(userDetails)
@@ -183,7 +207,7 @@ def logout_user(sessionDetails):
 
 # user dashboard
 def user_dashboard(userDetails):
-    print(f"\n--------- Welcome {userDetails["name"]} -------------")
+    print(f"\n--------- Welcome {userDetails["name"]}, ID = {userDetails["userId"]} -------------")
 
     display_category() #display the available options
     get_expense()
@@ -193,5 +217,7 @@ def user_dashboard(userDetails):
 # process
 name = input("name>> ")
 password = input("password>> ")
+name = name.capitalize()
 login_user(name, password) 
+
 usersFile.close()
