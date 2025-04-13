@@ -40,12 +40,14 @@ def display_category():
     print("[5] = Display History")
     print("[6] = Logout")
 
+
 #obtains the daily expenses (if selected)
 def set_user_expense():
     selectedCategory = validate_input("Category = ")
     if selectedCategory == 5:
         display_user_expense_history()
     elif selectedCategory == 6:
+        global userDet
         logout_user(userDet)
 
     endRequest = validate_input("Enter [1] to proceed: ")
@@ -76,10 +78,12 @@ def set_user_expense():
         display_category()
         set_user_expense()
     else:
+        update_user_expense_db()
         user_dashboard(userDet)
 
 # Processes the sum total
 def process_sum_message(name):
+    global userDet
     user = user_session(userDet)
     for items, value in categories.items():
         if items == name:
@@ -91,6 +95,7 @@ def process_sum_message(name):
                 print(f"No values were found for {name.capitalize()}...")
     
 def update_user_expense_db():
+    global userDet
     user = user_session(userDet)
     userId = user["id"]
     userExpense = user["Total_Cost"]
@@ -109,8 +114,28 @@ def update_user_expense_db():
 def get_user_expense():
     pass
 
+# Shows the user expenses from the db
 def display_user_expense_history():
-    pass
+    global userDet
+    user = user_session(userDet)
+    userId = user["userId"]
+    try:
+        with open("users_expenses.txt", "r") as file:
+            for data in file:
+                if userId == data:
+                    print(f"\nTotal cost for the period of {data + 2} was {data + 1}")
+                    break
+            # no data was found
+            print("\t...No data was found...")
+            user_dashboard(user)
+    except FileNotFoundError:
+        print(f"Failed to locate {file}. Ensure it exists...")
+        return 1
+    except Exception as e:
+        print("Error: Failed to display_user_expense_history... Quiting/Logging out...")
+        logout_user(user)
+
+    
 
 def display_user_expense():
     #for food
