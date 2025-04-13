@@ -66,16 +66,21 @@ def get_expense():
         endRequest = validate_input("Enter [0] to terminate and [1] to proceed: ")
     continueProcess = validate_input("Would you like to continue the process? [0] for no, [1] for yes")
     if continueProcess == 1:
+        user = user_session(userDet)
+        user["Category"] = categories
         get_expense()
 
 def process_sum_message(name):
+    user = user_session(userDet)
     for items, value in categories.items():
         if items == name:
             if name in value:
                 total = sum(value[name])
+                user["Total_Cost"] = total
                 print(f"Total of {name.capitalize()} sum = ", total)
             else:
                 print(f"No values were found for {name.capitalize()}...")
+    
 
 
 def display_user_expense():
@@ -162,6 +167,7 @@ def login_user(name, password):
 # Logout user
 def logout_user(sessionDetails):
     session = user_session(sessionDetails)
+    print("\nFinal summary:\n", session)
     print(session.clear())
     print("\nWe will be glad to see you soon...\n\t...... Goodbye .....")
     exit()
