@@ -64,7 +64,7 @@ def get_expense():
                 print("This category doesn't exists!!!")
         
         endRequest = validate_input("Enter [0] to terminate and [1] to proceed: ")
-    continueProcess = validate_input("Would you like to continue the process? [0] for no, [1] for yes")
+    continueProcess = validate_input("Would you like to continue the process? [0] for no, [1] for yes: ")
     if continueProcess == 1:
         user = user_session(userDet)
         user["Category"] = categories
