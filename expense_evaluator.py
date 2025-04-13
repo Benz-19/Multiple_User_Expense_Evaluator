@@ -1,4 +1,5 @@
 from collections import defaultdict
+import datetime
 
 categories = {
     "food" : defaultdict(list),
@@ -95,7 +96,8 @@ def update_user_expense_db():
     userExpense = user["Total_Cost"]
     try:
         with open("users_expenses.txt", "a") as file:
-            userDetails = userId + " " + userExpense
+            now = datetime.datetime.now()
+            userDetails = userId + " " + userExpense + "\t" + now.strftime("%d / %m / %Y")
             file.write(userDetails)
             if file:
                 print("--------- Successfully Updated your details ----------")
