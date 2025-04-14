@@ -1,4 +1,5 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
+import getpass
 import datetime
 
 categories = {
@@ -54,19 +55,25 @@ def set_user_expense():
     if endRequest not in [0,1]:
         print("Invalid input value, only [0] and [1] are allowed...")
         
+    userItems = defaultdict(list)    
     while endRequest != 0 and endRequest == 1:
         amount = validate_input("Enter the expense amount: ")
         match selectedCategory:
             case 0:
                 categories["food"]["food"].append(amount)
+                userItems["food"].append(amount)
             case 1:
                 categories["transport"]["transport"].append(amount)
+                userItems["transport"].append(amount)
             case 2:
                 categories["books"]["books"].append(amount)
+                userItems["books"].append(amount)
             case 3:
                 categories["bills"]["bills"].append(amount)
+                userItems["bills"].append(amount)
             case 4:
                 categories["entertainment"]["entertainment"].append(amount)
+                userItems["entertainment"].append(amount)
             case _:
                 print("This category doesn't exists!!!")
         
@@ -78,37 +85,55 @@ def set_user_expense():
         display_category()
         set_user_expense()
     else:
-        update_user_expense_db()
+        categoriesKey = categories.keys()
+        process_sum_message(categoriesKey)
+        update_user_expense_db(userItems)
         user_dashboard(userDet)
 
 # Processes the sum total
 def process_sum_message(name):
+    """Processes sums for given categories and updates user session."""
     global userDet
+    name = sorted(name)
+    sorted_categories = OrderedDict(sorted(categories.items()))
     user = user_session(userDet)
-    for items, value in categories.items():
-        if items == name:
-            if name in value:
-                total = sum(value[name])
+    i = 0
+    for category_name, category_data in sorted_categories.items():
+        if i < len(name) and category_name == name[i]:  # Check if i is within bounds
+            if name[i] in category_data:
+                total = sum(category_data[name[i]])
                 user["Total_Cost"] = total
-                print(f"Total of {name.capitalize()} sum = ", total)
-            else:
-                print(f"No values were found for {name.capitalize()}...")
-    
-def update_user_expense_db():
+                print(f"Total of {name[i].capitalize()} sum = {total}")
+            i += 1
+        elif i >= len(name):
+            break; #Prevents index out of bounds error.
+
+
+def update_user_expense_db(userItems):
     global userDet
     user = user_session(userDet)
-    userId = user["id"]
+    userId = user["userId"]
     userExpense = user["Total_Cost"]
     try:
         with open("users_expenses.txt", "a") as file:
             now = datetime.datetime.now()
-            userDetails = userId + " " + userExpense + "\t" + now.strftime("%d / %m / %Y")
+            food_items = userItems.get("food", [])
+            transport_items = userItems.get("transport", [])
+            books_items = userItems.get("books", [])
+            bills_items = userItems.get("bills", [])
+            entertainment_items = userItems.get("entertainment", [])
+            unavailable_items = userItems.get("unavailable", [])
+
+            userDetails = str(userId) + "\t\t" + str(userExpense) + "\t\t\t" + now.strftime("%d / %m / %Y") + \
+                          f" Food: {food_items}, Transport: {transport_items}, Books: {books_items}, Bills: {bills_items}, Entertainment: {entertainment_items}, Unavailable: {unavailable_items}\n"
             file.write(userDetails)
-            if file:
-                print("--------- Successfully Updated your details ----------")
+            print("--------- Successfully Updated your details ----------")
     except FileNotFoundError:
-        print(f"Failed to locate {file}. Ensure it exists...")
+        print(f"Failed to locate users_expenses.txt. Ensure it exists...")
         return 1
+    except Exception as e:
+        print(f"Error: Failed to update_user_expense_db, ErrorType: {e} Quitting/Logging out...")
+        logout_user(user)
 
 
 def get_user_expense():
@@ -119,14 +144,18 @@ def display_user_expense_history():
     global userDet
     user = user_session(userDet)
     userId = user["userId"]
+    print("\n--------------- YOUR HISTORY ------------")
     try:
         with open("users_expenses.txt", "r") as file:
+            print("Id\tTotal_Spent\tDate\t\tItems")
+            result = False
             for data in file:
-                if userId == data:
-                    print(f"\nTotal cost for the period of {data + 2} was {data + 1}")
+                if str(userId) in data:
+                    print(data.strip())
+                    result = True
                     break
-            # no data was found
-            print("\t...No data was found...")
+            if not result:
+                print("\t...No data was found...") # no data was found
             user_dashboard(user)
     except FileNotFoundError:
         print(f"Failed to locate {file}. Ensure it exists...")
@@ -135,25 +164,11 @@ def display_user_expense_history():
         print("Error: Failed to display_user_expense_history... Quiting/Logging out...")
         logout_user(user)
 
-    
-
-def display_user_expense():
-    #for food
-    process_sum_message("food")
-    #for transportation
-    process_sum_message("transport")
-    #for books
-    process_sum_message("books")
-    #for bills
-    process_sum_message("bills")
-    #for entertainment
-    process_sum_message("entertainment")
   
-
 # USER VALIDATION
 
-# saves the user details over time
 def user_session(details):
+    """saves the user details over time"""
     return details
 
 def generate_user_id():
@@ -169,6 +184,14 @@ def generate_user_id():
         print(f"Error: Something went wrong. ErrorType: {e}")
         return None
 
+def get_user_id(name, password):
+    """Obtains the user id."""
+    currentIndex = 0
+    while currentIndex < len(usersList) - 1: #Prevent index error
+        if usersList[currentIndex] == name and usersList[currentIndex + 1] == str(password):
+            return usersList[currentIndex + 2]
+        currentIndex += 1
+    return False
 
 def user_exists(name, password):
     """Determines if a user exists and stores all passwords for a given username."""
@@ -196,7 +219,7 @@ def create_user():
                 exists = user_exists(newUserName, newUserPassword) #checks if the user exists
                 if not exists:
                     userId = generate_user_id()
-                    userDetails = "\n" + newUserName + " " + newUserPassword + "\t" + str(userId)
+                    userDetails = str(newUserName) + " " + str(newUserPassword) + "\t" + str(userId) + "\n"
                     file.write(userDetails)
                     if not newUserName and not newUserPassword:
                         print("\nError...ENTER a NAME and a PASSWORD. Try again!")
@@ -219,14 +242,14 @@ def create_user():
 
 # Login user
 def login_user(name, password):
+    global userDet 
     exists = user_exists(name, password)
     if exists:
         try:
             userDetails = {}
             userDetails["name"] = name
             userDetails["password"] = password
-            userDetails["userId"] = generate_user_id()
-            global userDet 
+            userDetails["userId"] = get_user_id(name, password)
             userDet = userDetails
             user_session(userDetails)
             user_dashboard(userDet)
@@ -245,7 +268,7 @@ def login_user(name, password):
 # Logout user
 def logout_user(sessionDetails):
     session = user_session(sessionDetails)
-    print("\nFinal summary:\n", session)
+    # print("\nFinal summary:\n", session)
     print(session.clear())
     print("\nWe will be glad to see you soon...\n\t...... Goodbye .....")
     exit()
@@ -261,7 +284,7 @@ def user_dashboard(userDetails):
 
 # process
 name = input("name>> ")
-password = input("password>> ")
+password = getpass.getpass("password>> ")
 name = name.capitalize()
 login_user(name, password) 
 
