@@ -1,4 +1,5 @@
 from collections import defaultdict, OrderedDict
+import hashlib
 import getpass
 import datetime
 
@@ -181,7 +182,7 @@ def generate_user_id():
         print(f"The file {file} does not exists!!!")
         return 1
     except Exception as e:
-        print(f"Error: Something went wrong. ErrorType: {e}")
+        print(f"Error: Something went wrong while generationg an ID. ErrorType: {e}")
         return None
 
 def get_user_id(name, password):
