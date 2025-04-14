@@ -226,16 +226,13 @@ def get_password(name, userId):
     
 def user_exists(name, password):
     """Determines if a user exists and stores all passwords for a given username."""
-    sameNameDict = defaultdict(list)
     currentIndex = 0
     existing_data = open("password.txt", "r")
     existing_data_list = existing_data.read().split() 
 
     for data in existing_data_list:
-        if data == str(name) and existing_data_list[currentIndex + 1] == str(password):
-            print("user = ", data, "password = ", existing_data_list[currentIndex + 1])
-            sameNameDict[name].append(existing_data_list[currentIndex + 1]) 
-            return True
+        if data == str(name) and existing_data_list[currentIndex + 1] == str(password): #determines if the user exists
+            return True 
         currentIndex += 1
     return False
 
@@ -282,7 +279,7 @@ def create_user():
 def login_user(name, password):
     global userDet 
     password_hashed = hash_password(password)
-    exists = user_exists(name, password)
+    exists = user_exists(name, password_hashed)
     if exists:
         try:
             userDetails = {}
