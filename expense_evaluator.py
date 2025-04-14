@@ -206,6 +206,8 @@ def user_exists(name, password):
         currentIndex += 1
     return False
 
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
 def create_user():
     """Inserts a new user"""
@@ -216,6 +218,7 @@ def create_user():
             while check:
                 newUserName  = input("Enter your name>> ")
                 newUserPassword  = input("Enter your password>> ")
+                newUserPassword = hash_password(newUserPassword)
 
                 exists = user_exists(newUserName, newUserPassword) #checks if the user exists
                 if not exists:
@@ -244,6 +247,7 @@ def create_user():
 # Login user
 def login_user(name, password):
     global userDet 
+    password = hash_password(password)
     exists = user_exists(name, password)
     if exists:
         try:
