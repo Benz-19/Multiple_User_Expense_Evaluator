@@ -135,6 +135,7 @@ def update_user_expense_db(userItems):
     except Exception as e:
         print(f"Error: Failed to update_user_expense_db, ErrorType: {e} Quitting/Logging out...")
         logout_user(user)
+    file.close()
 
 
 def get_user_expense():
@@ -164,6 +165,7 @@ def display_user_expense_history():
     except Exception as e:
         print("Error: Failed to display_user_expense_history... Quiting/Logging out...")
         logout_user(user)
+    file.close()
 
   
 # USER VALIDATION
@@ -184,6 +186,8 @@ def generate_user_id():
     except Exception as e:
         print(f"Error: Something went wrong while generationg an ID. ErrorType: {e}")
         return None
+    file.close()
+
 
 def get_user_id(name, password):
     """Obtains the user id."""
@@ -204,9 +208,10 @@ def set_password(name, password, userId):
         print(f"Failed to open the file {file}...")
     except Exception as e:
         print(f"Error: Something went wrong while setting the password. ErrorType: {e}")
+    file.close()
 
 
-def get_password(name, userId):
+def get_password(userId):
     try:
         with open("password.txt", "r") as f:
             lines_arr = f.read().split()  
@@ -222,6 +227,7 @@ def get_password(name, userId):
     except Exception as e:
         print(f"Error: Something went wrong while setting the password. ErrorType: {e}")
         return 0
+    f.close()
 
     
 def user_exists(name, password):
@@ -274,6 +280,8 @@ def create_user():
                 exit()
     except Exception as e:
         print(f"Something went wrong in inserting the user data... {e}")
+    
+    file.close()
 
 # Login user
 def login_user(name, password):
