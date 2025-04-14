@@ -194,11 +194,11 @@ def get_user_id(name, password):
         currentIndex += 1
     return False
 
-def set_password(password, userId):
+def set_password(name, password, userId):
     """Inserts the password into the password db"""
     try:
         with open("password.txt", "a") as file:
-            userDetails = password + "\t\t" + userId + "\n"
+            userDetails = str(name) + "\t" + str(password) + "\t" + str(userId) + "\n"
             file.write(userDetails)
     except FileNotFoundError:
         print(f"Failed to open the file {file}...")
@@ -206,7 +206,7 @@ def set_password(password, userId):
         print(f"Error: Something went wrong while setting the password. ErrorType: {e}")
 
 
-def get_password(userId):
+def get_password(name, userId):
     try:
         with open("password.txt", "r") as f:
             lines_arr = f.read().split()  
@@ -224,23 +224,23 @@ def get_password(userId):
         return 0
 
     
-
-
-
 def user_exists(name, password):
     """Determines if a user exists and stores all passwords for a given username."""
     sameNameDict = defaultdict(list)
     currentIndex = 0
+    existing_data = open("password.txt", "r")
+    existing_data_list = existing_data.read().split() 
 
-    while currentIndex < len(usersList) - 1: #Prevent index error
-        if usersList[currentIndex] == name and usersList[currentIndex + 1] == str(password):
-            # print("user = ", usersList[currentIndex], "password = ", usersList[currentIndex + 1])
-            sameNameDict[name].append(usersList[currentIndex + 1])  # Store passwords as a list
-            return sameNameDict
+    for data in existing_data_list:
+        if data == str(name) and existing_data_list[currentIndex + 1] == str(password):
+            print("user = ", data, "password = ", existing_data_list[currentIndex + 1])
+            sameNameDict[name].append(existing_data_list[currentIndex + 1]) 
+            return True
         currentIndex += 1
     return False
 
 def hash_password(password):
+    password = str(password)
     return hashlib.sha256(password.encode()).hexdigest()
 
 def create_user():
@@ -256,7 +256,7 @@ def create_user():
                 exists = user_exists(newUserName, newUserPassword) #checks if the user exists
                 if not exists:
                     userId = generate_user_id()
-                    set_password(hash_password(newUserPassword), userId) #sets a hashed password into the password db
+                    set_password(newUserName, hash_password(newUserPassword), userId) #sets a hashed password into the password db
                     userDetails = str(newUserName) + " " + str(newUserPassword) + "\t" + str(userId) + "\n"
                     file.write(userDetails)
                     if not newUserName and not newUserPassword:
@@ -270,9 +270,9 @@ def create_user():
                     exit()
             
             # Login user
-            response = input("Press [0] to quit and login again: ")
-            response = validate_input(response)
-            if response:
+            response = "Press [0] to quit and login again: "
+            validated_response = validate_input(response)
+            if validated_response == 0:
                 print("\t\t--------- Goodbye ----------")
                 exit()
     except Exception as e:
@@ -281,7 +281,7 @@ def create_user():
 # Login user
 def login_user(name, password):
     global userDet 
-    password = hash_password(password)
+    password_hashed = hash_password(password)
     exists = user_exists(name, password)
     if exists:
         try:
@@ -322,10 +322,9 @@ def user_dashboard(userDetails):
 
 
 # process
-# name = input("name>> ")
-# password = getpass.getpass("password>> ")
-# name = name.capitalize()
-# login_user(name, password) 
+name = input("name>> ")
+password = getpass.getpass("password>> ")
+name = name.capitalize()
+login_user(name, password) 
 
-get_password(6)
 usersFile.close()
