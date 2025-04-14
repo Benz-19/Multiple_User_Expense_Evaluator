@@ -194,10 +194,44 @@ def get_user_id(name, password):
         currentIndex += 1
     return False
 
+def set_password(password, userId):
+    """Inserts the password into the password db"""
+    try:
+        with open("password.txt", "a") as file:
+            userDetails = password + "\t\t" + userId + "\n"
+            file.write(userDetails)
+    except FileNotFoundError:
+        print(f"Failed to open the file {file}...")
+    except Exception as e:
+        print(f"Error: Something went wrong while setting the password. ErrorType: {e}")
+
+
+def get_password(userId):
+    try:
+        with open("password.txt", "r") as f:
+            lines_arr = f.read().split()  
+            current_index = 0
+            for value in lines_arr:
+                if value == str(userId):
+                    return lines_arr[current_index - 1]  #gets the hashed password
+                current_index += 1
+
+    except FileNotFoundError:
+        print(f"Failed to open the file {f}...")
+        return 1
+    except Exception as e:
+        print(f"Error: Something went wrong while setting the password. ErrorType: {e}")
+        return 0
+
+    
+
+
+
 def user_exists(name, password):
     """Determines if a user exists and stores all passwords for a given username."""
     sameNameDict = defaultdict(list)
     currentIndex = 0
+
     while currentIndex < len(usersList) - 1: #Prevent index error
         if usersList[currentIndex] == name and usersList[currentIndex + 1] == str(password):
             # print("user = ", usersList[currentIndex], "password = ", usersList[currentIndex + 1])
@@ -218,11 +252,11 @@ def create_user():
             while check:
                 newUserName  = input("Enter your name>> ")
                 newUserPassword  = input("Enter your password>> ")
-                newUserPassword = hash_password(newUserPassword)
 
                 exists = user_exists(newUserName, newUserPassword) #checks if the user exists
                 if not exists:
                     userId = generate_user_id()
+                    set_password(hash_password(newUserPassword), userId) #sets a hashed password into the password db
                     userDetails = str(newUserName) + " " + str(newUserPassword) + "\t" + str(userId) + "\n"
                     file.write(userDetails)
                     if not newUserName and not newUserPassword:
@@ -288,9 +322,10 @@ def user_dashboard(userDetails):
 
 
 # process
-name = input("name>> ")
-password = getpass.getpass("password>> ")
-name = name.capitalize()
-login_user(name, password) 
+# name = input("name>> ")
+# password = getpass.getpass("password>> ")
+# name = name.capitalize()
+# login_user(name, password) 
 
+get_password(6)
 usersFile.close()
