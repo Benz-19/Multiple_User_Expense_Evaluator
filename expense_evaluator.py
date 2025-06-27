@@ -30,6 +30,7 @@ def validate_input(message):
                 print("Ensure the input value a whole number")
     return value
 
+
 #displays the available category to the user
 def display_category():
     print("\nThese are the available category for you to choose from. Use the index numbers 0,1,... to select an option.")
