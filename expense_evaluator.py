@@ -43,7 +43,6 @@ def display_category():
     print("[5] = Display History")
     print("[6] = Logout")
 
-
 #obtains the daily expenses (if selected)
 def set_user_expense():
     selectedCategory = validate_input("Category = ")
