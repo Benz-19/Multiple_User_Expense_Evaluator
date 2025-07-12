@@ -2,3 +2,4 @@ Id     Total_Spent    Date              Items
 8       300	        13 / 04 / 2025      
 8		130			13 / 04 / 2025      Food: [], Transport: []
 2		90			13 / 04 / 2025      Food: [], Transport: [], Books: [], Bills: [], Entertainment: [20], Unavailable: []
+
